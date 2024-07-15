@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import './Grid.css';
 
-const numRows = 30;
-const numCols = 30;
-
-const generateEmptyGrid = () => {
-  const rows = [];
-  for (let i = 0; i < numRows; i++) {
-    rows.push(Array.from(Array(numCols), () => 0));
+const generateEmptyGrid = (rows, cols) => {
+  const grid = [];
+  for (let i = 0; i < rows; i++) {
+    grid.push(Array.from(Array(cols), () => 0));
   }
-  return rows;
+  return grid;
 };
 
 const Grid = () => {
-  const [grid, setGrid] = useState(generateEmptyGrid());
+  const [numRows, setNumRows] = useState(30);
+  const [numCols, setNumCols] = useState(65);
+  const [grid, setGrid] = useState(generateEmptyGrid(numRows, numCols));
   const [running, setRunning] = useState(false);
   const [speed, setSpeed] = useState(100);
   const [theme, setTheme] = useState('default');
@@ -67,18 +66,23 @@ const Grid = () => {
     }
   }, [running, speed]);
 
+  const handleSetGridSize = () => {
+    setRunning(false);
+    setGrid(generateEmptyGrid(numRows, numCols));
+  };
+
   return (
     <main>
-      <header>
-        <div className="title">Conway's Game of Life</div>
+      <header className="title">
+        Conway's Game of Life
       </header>
       <section className="controls">
-        <button
+        <button 
           onClick={() => setRunning(!running)}
         >
           {running ? 'Stop' : 'Start'}
         </button>
-        <button
+        <button className="secondary"
           onClick={() => {
             const rows = [];
             for (let i = 0; i < numRows; i++) {
@@ -91,9 +95,9 @@ const Grid = () => {
         >
           Random
         </button>
-        <button
+        <button className="clear"
           onClick={() => {
-            setGrid(generateEmptyGrid());
+            setGrid(generateEmptyGrid(numRows, numCols));
           }}
         >
           Clear
@@ -120,8 +124,30 @@ const Grid = () => {
             <option value="neon">Neon</option>
           </select>
         </div>
+        <div>
+          <label htmlFor="numRows">Rows: </label>
+          <input
+            type="number"
+            id="numRows"
+            value={numRows}
+            onChange={(e) => setNumRows(Number(e.target.value))}
+            min="1"
+            max="100"
+          />
+          <label htmlFor="numCols">Cols: </label>
+          <input
+            type="number"
+            id="numCols"
+            value={numCols}
+            onChange={(e) => setNumCols(Number(e.target.value))}
+            min="1"
+            max="100"
+          />
+          <button onClick={handleSetGridSize}>Set Grid Size</button>
+        </div>
       </section>
-      <div className="grid">
+    <div className='grid-container'>
+      <div className="grid" style={{ gridTemplateColumns: `repeat(${numCols}, 20px)` }}>
         {grid.map((rows, i) =>
           rows.map((col, k) => (
             <div
@@ -139,6 +165,7 @@ const Grid = () => {
             />
           ))
         )}
+       </div>
       </div>
     </main>
   );
